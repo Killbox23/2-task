@@ -139,7 +139,7 @@ using namespace std;
         size++;//increasing the number of keys
         node_full->size = (node_full->size) - 1;
     }
-    //void Node::PrintTree()//Node *temp, int size
+    //void Node::PrintTree()//Node *temp, int size // not working
     //{
     //   /* if (size > 1 && leaf == true)
     //    {
@@ -154,7 +154,6 @@ using namespace std;
     //    }
     //    else
     //    {
-
     //    }*/
     //    for (int i = 0; i < size; i++)
     //    {   //cout << temp << " ";
@@ -174,7 +173,6 @@ using namespace std;
         {
             result = h;
             return;
-
         }
         Child[0]->Height(temp, h + 1, result);
     }

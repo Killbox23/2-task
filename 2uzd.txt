@@ -1,0 +1,206 @@
+#include <iostream>
+#include <cmath>
+//#include <vector>
+//#include <struct>
+using namespace std;
+
+    struct Node
+    {
+        int* key;
+        Node **Child;
+        bool leaf;
+        int size;
+        Node(int degree)
+        {
+            key = new int[degree];
+            Child = new Node * [degree + 1];
+            leaf = true;
+            size = 0;
+            for (int i = 0; i < degree; i++)
+            {
+                Child[i] = NULL;
+            }
+        }
+        Node* FindNode(Node* temp, int number,int degree,Node* root);
+        void SplitChild(Node* temp, int degree);
+       // void PrintTree();//Node* temp, int size
+        void Height(Node* temp, int height, int& result);
+    };
+    class Btree
+    { //private:
+        Node* root;
+        int degr;//degree
+    public:
+        Btree(int degree) { root = NULL;  degr = degree; }
+        void Insert(int number)
+        {
+            if (root == NULL)
+            {
+                root = new Node(degr);
+                root->leaf = true;
+                root->key[0] = number;
+                root->size++;
+            }
+            else
+            {
+            root = root->FindNode(root, number, degr, root);//find a place where to insert if tree is not empty
+            }
+        }
+        //void PrintTree(int size)
+        //{
+        //    root->PrintTree();//root, size
+        //}
+        int Height()
+        {
+            int result;
+            root->Height(root, 1, result);
+            return result;
+        }
+    };
+    Node* Node::FindNode(Node* node, int number, int degree, Node* root)
+    {
+        if (leaf == true)
+        {
+            int i = degree;
+            while (!key[i - 1])//look for numbers that are not null
+            {
+                i--;
+            }
+            while (key[i - 1] > number && i != 0)// if my number that i want to insert is bigger then key insert to the right
+            {
+                key[i] = key[i - 1];
+                i--;
+            }
+            key[i] = number;//inserting number
+            size++;
+        }
+        else
+        {//not leaf
+            int i = 0;
+            while (i<size && number>key[i])
+            {
+                i++;
+            }
+            Child[i]->FindNode(this, number, degree, root);
+        }//if node full split
+        if (size == degree)//when spliting root becomes child
+        {
+            if (this == root)
+            {
+                Node* temp = new Node(degree);
+                temp->leaf = false;
+                temp->Child[0] = this;
+                temp->SplitChild(this, degree);
+                return temp;
+            }
+            else
+            {
+                node->SplitChild(this, degree);
+            }
+        }
+        return root;
+    }
+    void Node::SplitChild(Node* node_full, int degree)
+    {
+        Node* right_node = new Node(degree);
+        int i_right = 0, moveup = (degree - 1) / 2;
+        int full_node_size = node_full->size; // get the number of keys in a node
+        int temp = node_full->key[moveup];//
+        int move_child = degree / 2, i_child = 0;
+        for (int i = moveup + 1; i < full_node_size; i++)
+        {
+            right_node->key[i_right] = node_full->key[i];
+            i_right++;
+            node_full->size = (node_full->size) - 1;
+            right_node->size = (right_node->size) + 1;
+        }//if the node that is getting split has children
+        if (node_full->leaf == false)
+        {
+            for (int i = move_child; i < degree; i++)
+            {
+                right_node->Child[i_child] = node_full->Child[i];
+                i_child++;
+            }
+            right_node->leaf = node_full->leaf;
+        }
+        int i_temp = degree - 1;
+        while (Child[i_temp] != node_full)
+        {
+            i_temp--;
+        }
+        Child[i_temp + 1] = right_node;
+        int j = degree - 1;// find where to place
+        while (key[j - 1]>temp && j != 0)//push to the right side
+        {
+            key[j] = key[j - 1];
+            j--;
+        }
+        key[j] = temp;//placing new number
+        size++;//increasing the number of keys
+        node_full->size = (node_full->size) - 1;
+    }
+    //void Node::PrintTree()//Node *temp, int size
+    //{
+    //   /* if (size > 1 && leaf == true)
+    //    {
+    //        cout << "Empty" << endl;
+    //    }
+    //    else if (size == 1)
+    //    {
+    //        for (int i = 0; i < size; i++)
+    //        {
+    //            cout << key[i] << " ";
+    //        }
+    //    }
+    //    else
+    //    {
+
+    //    }*/
+    //    for (int i = 0; i < size; i++)
+    //    {   //cout << temp << " ";
+    //        if (leaf==false)
+    //        //Child[i]->PrintTree(temp,size);
+    //        cout << " " << key[i];
+    //     
+    //    }
+    //    if (leaf == false)
+    //    {
+    //        Child[size-1]->PrintTree();//temp, size
+    //    }
+    //}
+    void Node::Height(Node* temp, int h, int& result)
+    {
+        if (leaf==true)
+        {
+            result = h;
+            return;
+
+        }
+        Child[0]->Height(temp, h + 1, result);
+    }
+      int main()
+    {
+          int temp,size,degree;
+          //for testing 3
+          cout << "Input degree: ";
+          cin >> degree;
+          //for testing 38
+          cout << "Input how many numbers you want to add: ";        
+          cin >> size;
+          //vector <int> A;
+          Btree A(degree);
+          // for testing
+          //10 20 30 25 50 35 15 16 1 2 3 4 5 80 70 75 82 83 84 85 86 87 88 89 90 90 90 90 88 88 88 88 90 90 90 90 88 88
+          for (int i = 0; i < size; i++)
+          {
+              cout << "Enter a number: ";
+              cin >> temp;
+              A.Insert(temp);
+          }
+          int height = A.Height();
+          //cout << "Tree: " << endl;
+         // A.PrintTree(size);
+          cout << endl;
+          cout << "Tree height: " << height << endl;
+          return 0;
+     }
